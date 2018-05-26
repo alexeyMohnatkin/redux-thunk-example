@@ -1,0 +1,9 @@
+.body {
+  flex: 1;
+}
+
+.author {
+  margin-bottom: 0.5rem;
+  color: var(--gray);
+  font-size: 12px;
+}

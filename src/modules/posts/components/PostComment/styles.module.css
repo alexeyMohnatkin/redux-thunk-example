@@ -1,0 +1,13 @@
+.root {
+  margin-bottom: 2rem;
+}
+
+.email {
+  margin-bottom: .5rem;
+  color: var(--gray);
+}
+
+.body {
+  border-left: 4px solid var(--secondary);
+  padding-left: 1rem;
+}

@@ -1,0 +1,15 @@
+.author {
+  text-align: right;
+  color: var(--gray);
+}
+
+.body {
+  margin-bottom: 3rem;
+}
+
+.commentForm {
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+  border: solid #ccc;
+  border-width: 1px 0;
+}
