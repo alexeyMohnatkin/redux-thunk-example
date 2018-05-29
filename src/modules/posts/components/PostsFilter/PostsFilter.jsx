@@ -18,9 +18,6 @@ const PostsFilter = ({
   if (error) {
     return <Alert color="danger">{error}</Alert>
   }
-  if (!users) {
-    return null;
-  }
 
   const options = users.map(({ id, name }) => ({ id, label: name }));
 

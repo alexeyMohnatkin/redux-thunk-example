@@ -1,85 +1,24 @@
 import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 import PostsFilter from 'modules/posts/components/PostsFilter'
 import PostsList from 'modules/posts/components/PostsList'
-import { baseUrl } from 'config';
+import { loadPosts } from 'modules/posts/actions';
+import WithUsers from 'modules/users/containers/WithUsers'
 import styles from './styles.module.css';
 
 class PostsPage extends PureComponent {
   state = {
-    posts: null,
-    fetchingPosts: false,
-    fetchingPostsError: '',
-    users: null,
-    fetchingUsers: false,
-    fetchingUsersError: '',
     selectedUser: null,
   }
 
   componentDidMount() {
     this.loadPosts();
-    this.loadUsers();
   }
 
   loadPosts() {
     const { selectedUser} = this.state;
     const userId = (!selectedUser || !selectedUser.length) ? null : selectedUser[0].id;
-    const url = new URL(`${baseUrl}/posts`);
-
-    if (userId) {
-      url.searchParams.set('userId', userId)
-    }
-
-    this.setState(() => ({
-      fetchingPosts: true,
-      fetchingPostsError: '',
-    }));
-
-    fetch(url)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`${response.status}: can't load posts list`);
-        }
-        return response.json();
-      })
-      .then(posts => {
-        this.setState(() => ({
-          posts,
-          fetchingPosts: false,
-        }));
-      })
-      .catch(error => {
-        this.setState({
-          fetchingPostsError: error.message,
-          fetchingPosts: false,
-        });
-      });
-  }
-
-  loadUsers() {
-    this.setState(() => ({
-      fetchingUsers: true,
-      fetchingUsersError: '',
-    }));
-
-    fetch(`${baseUrl}/users`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`${response.status}: can't load users list`);
-        }
-        return response.json();
-      })
-      .then(users => {
-        this.setState(() => ({
-          users,
-          fetchingUsers: false,
-        }));
-      })
-      .catch(error => {
-        this.setState({
-          fetchingUsersError: error.message,
-          fetchingUsers: false,
-        });
-      });
+    this.props.loadPosts(userId);
   }
 
   filterUsers = selected => {
@@ -88,22 +27,21 @@ class PostsPage extends PureComponent {
 
   render() {
     const {
+      selectedUser,
+    } = this.state;
+
+    const {
       users,
-      fetchingUsers,
-      fetchingUsersError,
       posts,
       fetchingPosts,
       fetchingPostsError,
-      selectedUser,
-    } = this.state;
+    } = this.props;
 
     return (
       <div>
         <h1>Posts</h1>
         <PostsFilter
           users={users}
-          fetching={fetchingUsers}
-          error={fetchingUsersError}
           selectedUser={selectedUser}
           onChange={this.filterUsers}
           className={styles.filter}
@@ -118,4 +56,12 @@ class PostsPage extends PureComponent {
   }
 }
 
-export default PostsPage;
+
+const mapStateToProps = (state) => ({
+  users: state.users.users,
+  posts: state.posts.posts,
+  fetchingPosts: state.posts.fetchingPosts,
+  fetchingPostsError: state.posts.fetchingPostsError,
+})
+
+export default WithUsers(connect(mapStateToProps, { loadPosts })(PostsPage));

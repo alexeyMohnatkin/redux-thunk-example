@@ -1,118 +1,39 @@
 import React, { PureComponent } from 'react';
-import { baseUrl } from 'config';
+import { connect } from 'react-redux';
+import WithUsers from 'modules/users/containers/WithUsers'
+import { loadPost, loadComments, sendComment } from 'modules/posts/actions';
 import PostDetails from 'modules/posts/components/PostDetails'
 
 class PostPage extends PureComponent {
   state = {
-    post: null,
-    fetchingPost: false,
-    fetchingPostError: '',
-    comments: null,
-    fetchingComments: false,
-    fetchingCommentsError: '',
-    sendingComment: false,
-    sendCommentError: '',
     formVisible: true,
   }
 
   componentDidMount() {
     const postId = this.props.match.params.id;
-    this.loadPost(postId);
-    this.loadComments(postId);
-  }
-
-  loadPost(postId) {
-    this.setState(() => ({
-      fetchingPost: true,
-      fetchingPostError: '',
-    }));
-
-    fetch(`${baseUrl}/posts/${postId}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`${response.status}: can't load post`);
-        }
-        return response.json();
-      })
-      .then(post => {
-        this.setState(() => ({
-          post,
-          fetchingPost: false,
-        }));
-      })
-      .catch(error => {
-        this.setState({
-          fetchingPostError: error.message,
-          fetchingPost: false,
-        });
-      });
-  }
-
-  loadComments(postId) {
-    this.setState(() => ({
-      fetchingComments: true,
-      fetchingCommentsError: '',
-    }));
-
-    fetch(`${baseUrl}/posts/${postId}/comments`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`${response.status}: can't load comments`);
-        }
-        return response.json();
-      })
-      .then(comments => {
-        this.setState(() => ({
-          comments,
-          fetchingComments: false,
-        }));
-      })
-      .catch(error => {
-        this.setState({
-          fetchingCommentsError: error.message,
-          fetchingComments: false,
-        });
-      });
+    this.props.loadPost(postId);
+    this.props.loadComments(postId);
   }
 
   sendComment = ({ email, text }) => {
     const postId = this.props.match.params.id;
-    this.setState(() => ({
-      sendCommentError: '',
-      sendingComment: true,
-    }))
 
-    fetch(`${baseUrl}/posts/${postId}/comments`, {
-      method: 'POST',
-      body: { email, text },
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`${response.status}: can't save comment`);
-        }
-        return response.json();
-      })
-      .then(() => {
-        this.setState(() => ({
-          sendingComment: false,
-          formVisible: false,
-        }))
-      })
-      .catch((error) => {
-        this.setState(() => ({
-          sendCommentError: error.message,
-          sendingComment: false,
-        }))
-      })
+    // thunk returns promise
+    this.props.sendComment(postId, { email, text })
+      .then(this.toggleForm)
   }
 
-  showForm = () => {
-    this.setState(() => ({
-      formVisible: true,
+  toggleForm = () => {
+    this.setState((state) => ({
+      formVisible: !state.formVisible,
     }))
   }
 
   render() {
+    const {
+      formVisible,
+    } = this.state;
+
     const {
       post,
       fetchingPost,
@@ -121,9 +42,8 @@ class PostPage extends PureComponent {
       fetchingComments,
       fetchingCommentsError,
       sendingComment,
-      sendCommentError,
-      formVisible,
-    } = this.state;
+      sendingCommentError,
+    } = this.props;
 
 
     return (
@@ -138,13 +58,26 @@ class PostPage extends PureComponent {
           fetchingCommentsError={fetchingCommentsError}
           onSendComment={this.sendComment}
           sendingComment={sendingComment}
-          sendCommentError={sendCommentError}
+          sendingCommentError={sendingCommentError}
           formVisible={formVisible}
-          showForm={this.showForm}
+          toggleForm={this.toggleForm}
         />
       </div>
     );
   }
 }
 
-export default PostPage;
+const mapStateToProps = (state) => ({
+  post: state.posts.post,
+  fetchingPost: state.posts.fetchingPost,
+  fetchingPostError: state.posts.fetchingPostError,
+
+  comments: state.posts.comments,
+  fetchingComments: state.posts.fetchingComments,
+  fetchingCommentsError: state.posts.fetchingCommentsError,
+
+  sendingComment: state.posts.sendingComment,
+  sendingCommentError: state.posts.sendingCommentError,
+})
+
+export default WithUsers(connect(mapStateToProps, { loadPost, loadComments, sendComment })(PostPage));

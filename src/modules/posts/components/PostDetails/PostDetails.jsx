@@ -16,10 +16,10 @@ const PostDetails = ({
   fetchingComments,
   fetchingCommentsError,
   sendingComment,
-  sendCommentError,
+  sendingCommentError,
   onSendComment,
   formVisible,
-  showForm,
+  toggleForm,
 }) => {
   if (fetchingPost) {
     return <div>loading...</div>;
@@ -36,7 +36,7 @@ const PostDetails = ({
   return (
     <div>
       <div className={styles.author}>
-        author: <Link to={`/users/${post.userId}`}>#{post.userId}</Link>
+        author: <Link to={`/users/${post.userId}`}>{post.author.name}</Link>
       </div>
       <div className={styles.body}>{post.body}</div>
 
@@ -55,7 +55,7 @@ const PostDetails = ({
             <Button
               color="primary"
               size="sm"
-              onClick={showForm}
+              onClick={toggleForm}
             >
               Send one more comment
             </Button>
@@ -66,7 +66,7 @@ const PostDetails = ({
         className={styles.commentForm}
         onSubmit={onSendComment}
         submitting={sendingComment}
-        error={sendCommentError}
+        error={sendingCommentError}
       />}
       <Button tag={Link} to={`/posts`}>Back to list</Button>
     </div>

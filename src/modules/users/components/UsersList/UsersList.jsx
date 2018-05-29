@@ -3,24 +3,12 @@ import 'bootstrap/dist/css/bootstrap.css';
 import {
   Row,
   Col,
-  Alert,
 } from 'reactstrap';
+import WithUsers from 'modules/users/containers/WithUsers'
 import UserCard from '../UserCard'
 import styles from './styles.module.css';
 
-const UsersList = ({ users, fetching, error }) => {
-  if (fetching) {
-    return <div>loading...</div>;
-  }
-
-  if (error) {
-    return <Alert color="danger">{error}</Alert>
-  }
-
-  if (!users) {
-    return null;
-  }
-
+const UsersList = ({ users }) => {
   return (
     <Row>
       {users.map(user => (
@@ -39,5 +27,4 @@ const UsersList = ({ users, fetching, error }) => {
   );
 }
 
-export default UsersList;
-
+export default WithUsers(UsersList);

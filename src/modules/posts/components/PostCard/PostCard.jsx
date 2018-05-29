@@ -15,7 +15,9 @@ const PostCard = ({ post, className}) => {
   return (
     <Card body className={className}>
       <CardTitle>{post.title}</CardTitle>
-      <CardSubtitle className={styles.author}>by <Link to={`/users/${post.userId}`}>#{post.userId}</Link></CardSubtitle>
+      <CardSubtitle className={styles.author}>
+        by <Link to={`/users/${post.userId}`}>{post.author.name}</Link>
+      </CardSubtitle>
       <CardText className={styles.body}>
         {preview}
       </CardText>
